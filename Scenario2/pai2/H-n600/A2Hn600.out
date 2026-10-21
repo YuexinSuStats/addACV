@@ -1,0 +1,86 @@
+Sender: LSF System <lsfadmin@c2u08n03>
+Subject: Job 749903: <A2Hn600> in cluster <cluster1> Done
+
+Job <A2Hn600> was submitted from host <ln02> by user <suyuexin> in cluster <cluster1> at Mon Sep 21 22:37:13 2026
+Job was executed on host(s) <14*c2u08n03>, in queue <batch>, as user <suyuexin> in cluster <cluster1> at Mon Sep 21 22:37:14 2026
+                            <14*c2u10n04>
+                            <14*a2u05n04>
+                            <14*c6u26n04>
+                            <14*a3u03n02>
+                            <14*a1u24n02>
+                            <14*a2u15n04>
+                            <14*a2u26n04>
+                            <14*a2u15n03>
+                            <14*c3u05n02>
+                            <4*a6u01n01>
+</share/home/suyuexin> was used as the home directory.
+</share/home/suyuexin/med> was used as the working directory.
+Started at Mon Sep 21 22:37:14 2026
+Terminated at Tue Sep 22 03:24:17 2026
+Results reported at Tue Sep 22 03:24:17 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+env SETTING_ID=S2-H-n600 REP_START=1 REP_END=500 OUTPUT_DIR=pai2/H-n600 PARALLEL_SEED_BASE=20260825 mpirun Rscript addICV.R
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1581757.00 sec.
+    Max Memory :                                 66476 MB
+    Average Memory :                             63622.35 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   1886 MB
+    Max Processes :                              157
+    Max Threads :                                613
+    Run time :                                   17222 sec.
+    Turnaround time :                            17224 sec.
+
+The output (if any) follows:
+
+MPI workers: 143 
+SETTING_ID: S2-H-n600 
+Replications: 1 to 500 
+External sample size: 20000 (generated once)
+Bandwidth: 3 * n^(-2/7) * sample SD(Z_j)
+Output directory: pai2/H-n600 
+======================= Simulation Summary =======================
+Run Time          : 285 mins
+Sample size       : 600 
+Successful WEE    : 500 / 500 
+Valid ICV runs   : ICV1=500, ICV2=500, ICV4=500 
+Censor rate       : 0.511 
+Cure rate         : 0.421 
+Valid boot (mean) : WEE=2400, ICV1=2400, ICV2=2400, ICV4=2400 
+Dropped boot(mean): WEE=0, ICV1=0, ICV2=0, ICV4=0 
+
+ Method Parameter  Bias    SD    SE    CP   MSE ValidN CureRate CensorRate
+    WEE     beta1 0.075 0.689 0.674 0.936 0.481    500    0.421      0.511
+    WEE     beta2 0.029 0.329 0.337 0.950 0.109    500    0.421      0.511
+   ICV1     beta1 0.036 0.458 0.469 0.952 0.211    500    0.421      0.511
+   ICV1     beta2 0.021 0.219 0.230 0.966 0.049    500    0.421      0.511
+   ICV2     beta1 0.027 0.431 0.450 0.958 0.186    500    0.421      0.511
+   ICV2     beta2 0.017 0.207 0.221 0.972 0.043    500    0.421      0.511
+   ICV4     beta1 0.021 0.389 0.413 0.962 0.152    500    0.421      0.511
+   ICV4     beta2 0.011 0.188 0.204 0.978 0.035    500    0.421      0.511
+==================================================================
+  Method Parameter   Bias    SD    SE    CP    MSE ValidN CureRate CensorRate
+1    WEE     beta1 0.0754 0.689 0.674 0.936 0.4806    500    0.421      0.511
+2    WEE     beta2 0.0292 0.329 0.337 0.950 0.1091    500    0.421      0.511
+3   ICV1     beta1 0.0361 0.458 0.469 0.952 0.2115    500    0.421      0.511
+4   ICV1     beta2 0.0211 0.219 0.230 0.966 0.0485    500    0.421      0.511
+5   ICV2     beta1 0.0271 0.431 0.450 0.958 0.1864    500    0.421      0.511
+6   ICV2     beta2 0.0174 0.207 0.221 0.972 0.0430    500    0.421      0.511
+7   ICV4     beta1 0.0206 0.389 0.413 0.962 0.1518    500    0.421      0.511
+8   ICV4     beta2 0.0106 0.188 0.204 0.978 0.0354    500    0.421      0.511
+
+
+PS:
+
+Read file <pai2/H-n600/A2Hn600.err> for stderr output of this job.
+

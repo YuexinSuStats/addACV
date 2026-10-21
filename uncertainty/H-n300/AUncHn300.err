@@ -1,0 +1,17 @@
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   a1u24n02
+  Local device: mlx5_0
+--------------------------------------------------------------------------
+[c1u22n04:14760] 17 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[c1u22n04:14760] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+[c1u22n04:14760] 1 more process has sent help message help-mpi-btl-openib.txt / error in device init
+[c1u22n04:14760] 8 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[c1u22n04:14760] 7 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[c1u22n04:14760] 16 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[c1u22n04:14760] 34 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[c1u22n04:14760] 60 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+Warning message:
+In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): Repeat, get.est, boot.cov, getprob, cv.result, method.rows, symmetrize, regularized_inverse, Get.random, NWweight2, S.Ti, P.T, KK, subgf, pai, H_0, Data, aux.zero, beta.true, gamma.true, lambdaC, tau0, kappa, B, n, N.grid, N.max, m.num, k.num, AUX_NAME, SETTING_ID, method.order, MIN_VALID_BOOT, COV_EIGEN_FLOOR, SEED_EXTERNAL_DATA, PARALLEL_SEED_BASE, rep.ids

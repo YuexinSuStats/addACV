@@ -1,0 +1,11 @@
+--------------------------------------------------------------------------
+WARNING: There was an error initializing an OpenFabrics device.
+
+  Local host:   a2u15n03
+  Local device: mlx5_0
+--------------------------------------------------------------------------
+[c2u08n03:348963] 143 more processes have sent help message help-mpi-btl-openib.txt / error in device init
+[c2u08n03:348963] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+Warning message:
+In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): Repeat, get.est, boot.cov, symmetrize, regularized_inverse, getprob, NWweight2, S.Ti, P.T, KK, subgf, Data, aux.info, beta.true, B, N_ex, k.num, MIN_VALID_BOOT, COV_EIGEN_FLOOR, PARALLEL_SEED_BASE, rep.ids

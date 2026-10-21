@@ -1,0 +1,101 @@
+Sender: LSF System <lsfadmin@c1u22n04>
+Subject: Job 750263: <AUncHn300> in cluster <cluster1> Done
+
+Job <AUncHn300> was submitted from host <ln02> by user <suyuexin> in cluster <cluster1> at Wed Sep 23 12:03:45 2026
+Job was executed on host(s) <14*c1u22n04>, in queue <batch>, as user <suyuexin> in cluster <cluster1> at Wed Sep 23 12:03:46 2026
+                            <14*a1u03n03>
+                            <14*a1u24n03>
+                            <14*c2u12n02>
+                            <14*c1u15n03>
+                            <14*a2u22n03>
+                            <14*a2u05n04>
+                            <14*c2u12n01>
+                            <14*a3u03n02>
+                            <14*a1u08n01>
+                            <4*a1u24n02>
+</share/home/suyuexin> was used as the home directory.
+</share/home/suyuexin/med> was used as the working directory.
+Started at Wed Sep 23 12:03:46 2026
+Terminated at Wed Sep 23 12:47:21 2026
+Results reported at Wed Sep 23 12:47:21 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+env PARALLEL_BACKEND=mpi   SETTING_ID=S1-H-n300   REP_START=1 REP_END=500   N_RATIOS=3,5,10,20,50   N_REFERENCE=20000   NBOOT=1200 MIN_VALID_BOOT=30   OUTPUT_DIR=add_uncertain/H-n300   PARALLEL_SEED_BASE=20260922   mpirun Rscript add_uncertain.R
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   206582.00 sec.
+    Max Memory :                                 54732 MB
+    Average Memory :                             49435.29 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              157
+    Max Threads :                                614
+    Run time :                                   2614 sec.
+    Turnaround time :                            2616 sec.
+
+The output (if any) follows:
+
+Parallel backend: mpi 
+Workers: 143 
+SETTING_ID: S1-H-n300 
+Replications: 1 to 500 
+Internal n: 300 
+External N: 900, 1500, 3000, 6000, 15000 
+N/n ratios: 3, 5, 10, 20, 50 
+Auxiliary time points: 0.0417518077519407, 0.0997168166380855 
+Bandwidth: 3 * n^(-2/7) * sample SD(Z_j)
+Output directory: add_uncertain/H-n300 
+================ Simulation Summary ================
+Run time (minutes): 43.245 
+Successful internal replications: 500 / 500 
+Mean censoring rate: 0.497 
+Mean cure rate: 0.409 
+Raw results: add_uncertain/H-n300/S1-H-n300_rep1-500_raw.csv 
+Five-point summary: add_uncertain/H-n300/S1-H-n300_rep1-500_summary.csv 
+Calibration plots: add_uncertain/H-n300/S1-H-n300_rep1-500_SE_SD_curve.pdf add_uncertain/H-n300/S1-H-n300_rep1-500_SE_SD_curve.png 
+ ExternalN N_over_n    Method Parameter   Bias    SE    SD    CP SE_SD ValidN
+       900        3       WEE     beta1 -0.003 1.015 1.003 0.950 1.012    500
+       900        3       WEE     beta2  0.032 0.526 0.520 0.956 1.012    500
+       900        3       ICV     beta1 -0.015 0.801 0.820 0.950 0.977    500
+       900        3       ICV     beta2  0.027 0.421 0.429 0.936 0.982    500
+       900        3 ICV_naive     beta1  0.022 0.546 1.656 0.500 0.330    500
+       900        3 ICV_naive     beta2  0.035 0.298 0.807 0.544 0.370    500
+      1500        5       WEE     beta1 -0.003 1.015 1.003 0.950 1.012    500
+      1500        5       WEE     beta2  0.032 0.526 0.520 0.956 1.012    500
+      1500        5       ICV     beta1 -0.014 0.756 0.748 0.954 1.010    500
+      1500        5       ICV     beta2  0.021 0.399 0.401 0.946 0.994    500
+      1500        5 ICV_naive     beta1  0.029 0.542 1.358 0.580 0.399    500
+      1500        5 ICV_naive     beta2  0.026 0.296 0.652 0.646 0.454    500
+      3000       10       WEE     beta1 -0.003 1.015 1.003 0.950 1.012    500
+      3000       10       WEE     beta2  0.032 0.526 0.520 0.956 1.012    500
+      3000       10       ICV     beta1 -0.021 0.702 0.677 0.952 1.037    500
+      3000       10       ICV     beta2  0.032 0.373 0.382 0.938 0.976    500
+      3000       10 ICV_naive     beta1  0.000 0.538 1.046 0.706 0.514    500
+      3000       10 ICV_naive     beta2  0.027 0.295 0.527 0.732 0.559    500
+      6000       20       WEE     beta1 -0.003 1.015 1.003 0.950 1.012    500
+      6000       20       WEE     beta2  0.032 0.526 0.520 0.956 1.012    500
+      6000       20       ICV     beta1 -0.003 0.659 0.635 0.966 1.037    500
+      6000       20       ICV     beta2  0.029 0.352 0.352 0.946 1.000    500
+      6000       20 ICV_naive     beta1  0.004 0.536 0.797 0.794 0.672    500
+      6000       20 ICV_naive     beta2  0.029 0.293 0.416 0.822 0.705    500
+     15000       50       WEE     beta1 -0.003 1.015 1.003 0.950 1.012    500
+     15000       50       WEE     beta2  0.032 0.526 0.520 0.956 1.012    500
+     15000       50       ICV     beta1 -0.006 0.614 0.608 0.956 1.011    500
+     15000       50       ICV     beta2  0.025 0.331 0.335 0.940 0.989    500
+     15000       50 ICV_naive     beta1 -0.003 0.535 0.660 0.880 0.810    500
+     15000       50 ICV_naive     beta2  0.026 0.293 0.344 0.892 0.852    500
+====================================================
+
+
+PS:
+
+Read file <add_uncertain/H-n300/AUncHn300.err> for stderr output of this job.
+

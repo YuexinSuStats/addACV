@@ -1,0 +1,86 @@
+Sender: LSF System <lsfadmin@a6u24n02>
+Subject: Job 749906: <A3Hn300> in cluster <cluster1> Done
+
+Job <A3Hn300> was submitted from host <ln02> by user <suyuexin> in cluster <cluster1> at Mon Sep 21 22:37:13 2026
+Job was executed on host(s) <14*a6u24n02>, in queue <batch>, as user <suyuexin> in cluster <cluster1> at Mon Sep 21 23:24:51 2026
+                            <14*c1u24n03>
+                            <14*c1u01n04>
+                            <14*c1u15n01>
+                            <14*a6u24n04>
+                            <14*c3u12n02>
+                            <14*c1u19n03>
+                            <14*a2u08n04>
+                            <14*c3u17n03>
+                            <14*c3u15n04>
+                            <4*a1u08n02>
+</share/home/suyuexin> was used as the home directory.
+</share/home/suyuexin/med> was used as the working directory.
+Started at Mon Sep 21 23:24:51 2026
+Terminated at Tue Sep 22 00:01:56 2026
+Results reported at Tue Sep 22 00:01:56 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+env SETTING_ID=S3-H-n300 REP_START=1 REP_END=500 OUTPUT_DIR=pai3/H-n300 PARALLEL_SEED_BASE=20260825 mpirun Rscript addICV.R
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   237082.00 sec.
+    Max Memory :                                 55998 MB
+    Average Memory :                             50523.93 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              157
+    Max Threads :                                613
+    Run time :                                   2224 sec.
+    Turnaround time :                            5083 sec.
+
+The output (if any) follows:
+
+MPI workers: 143 
+SETTING_ID: S3-H-n300 
+Replications: 1 to 500 
+External sample size: 20000 (generated once)
+Bandwidth: 3 * n^(-2/7) * sample SD(Z_j)
+Output directory: pai3/H-n300 
+======================= Simulation Summary =======================
+Run Time          : 36.7 mins
+Sample size       : 300 
+Successful WEE    : 500 / 500 
+Valid ICV runs   : ICV1=500, ICV2=500, ICV4=500 
+Censor rate       : 0.573 
+Cure rate         : 0.501 
+Valid boot (mean) : WEE=1200, ICV1=1200, ICV2=1200, ICV4=1200 
+Dropped boot(mean): WEE=0, ICV1=0, ICV2=0, ICV4=0 
+
+ Method Parameter   Bias    SD    SE    CP   MSE ValidN CureRate CensorRate
+    WEE     beta1  0.039 1.127 1.195 0.958 1.272    500    0.501      0.573
+    WEE     beta2 -0.014 0.712 0.702 0.938 0.507    500    0.501      0.573
+   ICV1     beta1 -0.001 0.689 0.761 0.968 0.474    500    0.501      0.573
+   ICV1     beta2 -0.017 0.462 0.486 0.962 0.214    500    0.501      0.573
+   ICV2     beta1 -0.003 0.646 0.712 0.954 0.418    500    0.501      0.573
+   ICV2     beta2 -0.013 0.430 0.447 0.950 0.185    500    0.501      0.573
+   ICV4     beta1  0.006 0.592 0.642 0.948 0.350    500    0.501      0.573
+   ICV4     beta2 -0.015 0.404 0.396 0.934 0.164    500    0.501      0.573
+==================================================================
+  Method Parameter      Bias    SD    SE    CP   MSE ValidN CureRate CensorRate
+1    WEE     beta1  0.038978 1.127 1.195 0.958 1.272    500    0.501      0.573
+2    WEE     beta2 -0.013739 0.712 0.702 0.938 0.507    500    0.501      0.573
+3   ICV1     beta1 -0.000512 0.689 0.761 0.968 0.474    500    0.501      0.573
+4   ICV1     beta2 -0.016516 0.462 0.486 0.962 0.214    500    0.501      0.573
+5   ICV2     beta1 -0.002917 0.646 0.712 0.954 0.418    500    0.501      0.573
+6   ICV2     beta2 -0.012753 0.430 0.447 0.950 0.185    500    0.501      0.573
+7   ICV4     beta1  0.006426 0.592 0.642 0.948 0.350    500    0.501      0.573
+8   ICV4     beta2 -0.015433 0.404 0.396 0.934 0.164    500    0.501      0.573
+
+
+PS:
+
+Read file <pai3/H-n300/A3Hn300.err> for stderr output of this job.
+
