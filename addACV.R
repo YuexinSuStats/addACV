@@ -11,18 +11,18 @@ library(lars)
 timestart <- Sys.time()
 
 # =============================================================================
-# Uncertainty-adjusted ICV/ACV simulation with heterogeneous auxiliary data
+# ICV/ACV simulation without external-information uncertainty adjustment
 #
 # The external sample is generated once and then held fixed across all Monte
-# Carlo replications.  Both ICV and ACV use the uncertainty-adjusted
-# control-variate covariance
+# Carlo replications.  Both ICV and ACV use the original internal
+# control-variate covariance V22 and treat the external auxiliary estimates as
+# fixed.  In particular, the adjustment
 #
-#   V22.U = V22 + (n / N_ex) * D.pi %*% Sigma.phi %*% D.pi,
+#   (n / N_ex) * D.pi %*% Sigma.phi %*% D.pi
 #
-# where Sigma.phi is estimated by applying the same subgroup KM procedure to
-# the internal bootstrap samples, as in addICV_U01.R.  Both the ICV point
-# estimator and its variance use V22.U.  The adaptive lasso step estimates and
-# selects nonzero components of the external-data discrepancy.
+# is not added.  The adaptive-lasso step still estimates and selects nonzero
+# components of the external-data discrepancy.  All other settings and output
+# structures are unchanged from addACV.R.
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -661,10 +661,10 @@ Repeat <- function(r, rep.id, aux.info) {
   }
   D.pi <- diag(pai.q, nrow = q.num)
 
-  # The external-information uncertainty is retained from addICV.R.
-  V22.U <- symmetrize(
-    V22 + (nn / N_ex) * D.pi %*% Sigma.phi %*% D.pi
-  )
+  # No external-information uncertainty adjustment: use V22 directly.
+  # The V22.U name is retained so that the remaining code and output
+  # structure stay identical to addACV.R.
+  V22.U <- V22
 
   finite.matrices <-
     all(is.finite(V11)) &&
@@ -689,7 +689,7 @@ Repeat <- function(r, rep.id, aux.info) {
   }
   se.ICV <- sqrt(pmax(diag(var.ICV), 0))
 
-  # Symmetric square root of V22.U^{-1} for the whitened adaptive lasso.
+  # Symmetric square root of V22^{-1} for the whitened adaptive lasso.
   ee.inv <- eigen(VU.inv, symmetric = TRUE)
   V.inv.root <- ee.inv$vectors %*%
     diag(sqrt(pmax(ee.inv$values, 0)), nrow = q.num) %*%
@@ -714,7 +714,7 @@ Repeat <- function(r, rep.id, aux.info) {
   inactive.set <- setdiff(seq_len(q.num), active.set)
 
   # The ACV variance uses only the components selected as homogeneous.  The
-  # same uncertainty-adjusted covariance is used here as in the ICV step.
+  # same unadjusted covariance V22 is used here as in the ICV step.
   if (length(inactive.set) > 0L) {
     Gamma2.hat <- V12[inactive.set, , drop = FALSE]
     V22.U.hat <- V22.U[inactive.set, inactive.set, drop = FALSE]

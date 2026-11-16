@@ -250,10 +250,10 @@ p <- ggplot(plot_data, aes(x = Method, y = Estimate)) +
     x = "Method",
     y = "Estimate"
   ) +
-  theme_bw(base_size = 12) +
+  theme_bw(base_size = 10) +
   theme(
     strip.background = element_blank(),
-    strip.text = element_text(face = "bold", size = 13),
+    strip.text = element_text(face = "bold", size = 11),
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank(),
     axis.title = element_text(face = "bold"),
@@ -263,30 +263,39 @@ p <- ggplot(plot_data, aes(x = Method, y = Estimate)) +
   )
 
 output_stem <- paste0(tools::file_path_sans_ext(basename(input_csv)), "_boxplot")
-png_file <- file.path(script_dir, paste0(output_stem, ".png"))
 pdf_file <- file.path(script_dir, paste0(output_stem, ".pdf"))
+eps_file <- file.path(script_dir, paste0(output_stem, ".eps"))
 
-ggsave(
-  filename = png_file,
-  plot = p,
-  width = 8.5,
-  height = 4.8,
-  units = "in",
-  dpi = 600,
-  bg = "white"
-)
+# Wiley large-figure width (180 mm). Cairo produces
+# vector PDF/EPS output and preserves text and line art at publication size.
+figure_width_in <- 180 / 25.4
+figure_height_in <- 4.0
 
 ggsave(
   filename = pdf_file,
   plot = p,
-  width = 8.5,
-  height = 4.8,
+  width = figure_width_in,
+  height = figure_height_in,
   units = "in",
-  device = "pdf"
+  device = grDevices::cairo_pdf,
+  bg = "white",
+  fallback_resolution = 600
+)
+
+ggsave(
+  filename = eps_file,
+  plot = p,
+  width = figure_width_in,
+  height = figure_height_in,
+  units = "in",
+  device = grDevices::cairo_ps,
+  bg = "white",
+  onefile = FALSE,
+  fallback_resolution = 600
 )
 
 print(p)
 
 cat("Valid estimates per panel and method:\n")
 print(with(plot_data, table(Parameter, Method)))
-cat("\nSaved:\n", png_file, "\n", pdf_file, "\n", sep = "")
+cat("\nSaved:\n", pdf_file, "\n", eps_file, "\n", sep = "")

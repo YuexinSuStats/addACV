@@ -7,62 +7,11 @@ library(MASS)
 library(mvtnorm)
 library(lars)
 library(Matrix)
+library(glmnet)
 
 
 
-###prepare data---------------
-
-
-load("clinical.RData")
-# - a preparation
-sdata.pre <- data.frame(
-  yobs   = ifelse(!is.na(clinical[,'days_to_death']),
-                  clinical[,'days_to_death'],
-                  clinical[,'days_to_last_follow_up']) / 365,
-  delta  = ifelse(!is.na(clinical[,'days_to_death']), 1, 0),
-  
-  Age    = clinical[,'age_at_diagnosis'] / 365,
-  
-  Race   = ifelse(clinical[,'race'] == 'black or african american', 'black',
-                  ifelse(clinical[,'race'] == 'white', 'white', 'other')),
-  
-  Gender = ifelse(clinical[,'sex_at_birth'] == 'female', 'Female',
-                  ifelse(clinical[,'sex_at_birth'] == 'male', 'Male', NA)),
-  Laterality = ifelse(clinical[,'laterality'] == 'Left','Left','Right'),
-  Stage  = sapply(
-    clinical[,'ajcc_pathologic_stage'],
-    function(x, pattern = 'Stage X|Stage IV|Stage [I]*') {
-      ifelse(grepl(pattern, x),
-             regmatches(x, regexpr(pattern, x)),
-             NA)
-    },
-    USE.NAMES = FALSE
-  ),
-  
-  ERstatus = clinical[,'ER_Status'],
-  Day = clinical[,'days_to_last_follow_up']
-  
-)
-
-
-# - extract covariates and remove undesiable subjects and NA
-sdata.TCGA <- na.omit(
-  sdata.pre[
-    sdata.pre[,'yobs'] > 0
-    & sdata.pre[,'Age'] <= 75
-    & sdata.pre[,'Gender'] == "Female"
-    & sdata.pre[,'Race'] %in% c('white')
-    & sdata.pre[,'Laterality'] %in% c('Right')
-    & sdata.pre[,'Stage'] %in% c('Stage I','Stage II','Stage III')
-    & sdata.pre[,'Day'] > 0 ,
-    c('yobs','delta','Age','ERstatus'),
-  ]
-)
-
-
-
-####get small sample
-rownames(sdata.TCGA) <- NULL
+load("sdata.TCGA.RData")
 cens.Rate<-sum(sdata.TCGA$delta==0)/nrow(sdata.TCGA)
 ##cure test
 Tmax<-max(sdata.TCGA$yobs)
@@ -88,7 +37,7 @@ maller_zhou_cure <- function(data) {
 }
 
 cure.rate <- maller_zhou_cure(sdata.TCGA)
-sum<-summary(sdata.TCGA)
+data.summary <- summary(sdata.TCGA)
 # auxiliary information ---------------------------------------------------
 
 
@@ -478,7 +427,15 @@ getest <- function(sdata.TCGA, tpro, B, tstar, k.num, q.num){
 set.seed(1)
 realdata.result <- getest(sdata.TCGA = sdata.TCGA, tpro = tpro, B = 400,
                           tstar = tstar, k.num = k.num, q.num = q.num)
-sink("1.txt")
+sink("result.txt")
+cat("Summary of the TCGA analysis data\n")
+cat("=================================\n")
+print(data.summary)
+cat("\nCensoring rate\n")
+cat("==============\n")
+print(cens.Rate)
+cat("\nEstimation results\n")
+cat("==================\n")
 print(realdata.result)
 sink()
 
@@ -508,8 +465,8 @@ surv_df <- data.frame(
 p1 <- ggplot(surv_df, aes(x = time, y = surv)) +
   geom_ribbon(
     aes(ymin = lower, ymax = upper),
-    fill = "gray80",
-    alpha = 0.3
+    fill = "gray90",
+    alpha = 1
   ) +
   geom_step(linewidth = 0.5, color = "black") +
   coord_cartesian(xlim = c(0, 25), ylim = c(0, 1)) +
@@ -518,19 +475,38 @@ p1 <- ggplot(surv_df, aes(x = time, y = surv)) +
     x = "Survival Time (in Years)",
     y = "Survival Probability"
   ) +
-  theme_bw(base_size = 14) +
+  theme_bw(base_size = 10) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.title = element_text(size = 16),
-    axis.text = element_text(size = 13)
+    axis.title = element_text(size = 11),
+    axis.text = element_text(size = 9)
   )
 
+# Wiley large-figure width (180 mm). Both files are vector
+# graphics; 600 dpi is retained as the fallback for any rasterised elements.
+figure_width_in <- 180 / 25.4
+figure_height_in <- 4.0
+
 ggsave(
-  filename = "kmplot.png",
+  filename = "kmplot.pdf",
   plot = p1,
-  width = 8,
-  height = 4.5,
+  width = figure_width_in,
+  height = figure_height_in,
   units = "in",
-  dpi = 500
+  device = grDevices::cairo_pdf,
+  bg = "white",
+  fallback_resolution = 600
+)
+
+ggsave(
+  filename = "kmplot.eps",
+  plot = p1,
+  width = figure_width_in,
+  height = figure_height_in,
+  units = "in",
+  device = grDevices::cairo_ps,
+  bg = "white",
+  onefile = FALSE,
+  fallback_resolution = 600
 )

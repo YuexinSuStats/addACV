@@ -4,28 +4,28 @@ library(survival)
 library(ggplot2)
 
 # =============================================================================
-# Comparison of uncertainty-adjusted and naive ICV estimators
+# Comparison of WEEICV and uncertainty-adjusted ICV (UICV)
 #
 # Design inherited from addICV.R:
 #   * pai1: logistic cure-incidence link;
-#   * n = 300;
+#   * n = 300 or 600;
 #   * low/high censoring selected by SETTING_ID;
 #   * two continuous covariates;
 #   * bandwidth h_j = 3 * n^(-2/7) * sd(Z_j);
 #   * the same subtf() rule as addICV.R;
 #   * four subgroups defined by Z1 = 1 and Z2 = 2 cutoffs;
-#   * two auxiliary time points.
+#   * one auxiliary time point.
 #
 # Methods:
-#   WEE       : weighted estimating-equation estimator;
-#   ICV       : uncertainty-adjusted ICV, using
-#               V22.U = V22 + (n/N) D.pi Sigma.phi D.pi;
-#   ICV_naive : ICV that treats the external KM estimates as fixed.
+#   WEEICV : the original ICV estimator, which treats the external KM
+#            estimates as fixed (no external-uncertainty adjustment);
+#   UICV   : uncertainty-adjusted ICV, using
+#            V22.U = V22 + (n/N) D.pi Sigma.phi D.pi.
 #
 # A fresh external sample is generated in every Monte Carlo replication. This
 # is essential because the Monte Carlo SD must contain external-sample
 # variation when assessing whether the uncertainty-adjusted SE is calibrated.
-# Within a replication, the five external samples are nested subsets of one
+# Within a replication, the three external samples are nested subsets of one
 # randomly permuted sample of size max(N), providing common random numbers for
 # a smoother and more efficient comparison across N/n.
 # =============================================================================
@@ -40,16 +40,19 @@ REP_START <- as.integer(Sys.getenv("REP_START", "1"))
 REP_END <- as.integer(Sys.getenv("REP_END", "500"))
 OUTPUT_DIR <- Sys.getenv(
   "OUTPUT_DIR",
-  file.path("uncertainty", SETTING_ID)
+  file.path("uncertainICV", SETTING_ID)
 )
 PARALLEL_SEED_BASE <- as.integer(
   Sys.getenv("PARALLEL_SEED_BASE", "20260825")
 )
 PARALLEL_BACKEND <- tolower(Sys.getenv("PARALLEL_BACKEND", "mpi"))
 
-valid.settings <- c("S1-L-n300", "S1-H-n300")
+valid.settings <- c(
+  "S1-L-n300", "S1-H-n300",
+  "S1-L-n600", "S1-H-n600"
+)
 if (!SETTING_ID %in% valid.settings) {
-  stop("SETTING_ID must be S1-L-n300 or S1-H-n300.")
+  stop("SETTING_ID must be S1-L/H-n300/n600 (pai1 incidence).")
 }
 if (is.na(REP_START) || is.na(REP_END) ||
     REP_START < 1L || REP_END < REP_START) {
@@ -69,16 +72,16 @@ n <- as.integer(sub("^n", "", setting.parts[3]))
 rep.ids <- seq.int(REP_START, REP_END)
 repetition <- length(rep.ids)
 
-# The default grid puts more resolution where the external uncertainty changes
-# most rapidly. It can be overridden, but exactly five ratios are required.
-ratio.text <- Sys.getenv("N_RATIOS", "3,5,10,20,50")
+# External-to-internal sample-size ratios requested for the uncertainty study.
+# The grid may be overridden, but exactly three positive ratios are required.
+ratio.text <- Sys.getenv("N_RATIOS", "3,5,10")
 N.ratios.requested <- suppressWarnings(as.numeric(
   strsplit(gsub("[[:space:]]", "", ratio.text), ",", fixed = TRUE)[[1]]
 ))
-if (length(N.ratios.requested) != 5L ||
+if (length(N.ratios.requested) != 3L ||
     any(!is.finite(N.ratios.requested)) ||
     any(N.ratios.requested <= 0)) {
-  stop("N_RATIOS must contain exactly five positive numbers, e.g. 3,5,10,20,50.")
+  stop("N_RATIOS must contain exactly three positive numbers, e.g. 3,5,10.")
 }
 N.grid <- as.integer(round(n * N.ratios.requested))
 if (anyDuplicated(N.grid)) {
@@ -116,9 +119,9 @@ SEED_EXTERNAL_DATA <- 300000L
 # -----------------------------------------------------------------------------
 beta.true <- c(1, 1)
 k.num <- 4L
-m.num <- 2L
-AUX_NAME <- "AUX2"
-method.order <- c("WEE", "ICV", "ICV_naive")
+m.num <- 1L
+AUX_NAME <- "AUX1"
+method.order <- c("WEEICV", "UICV")
 
 if (censor.setting == "L") {
   lambdaC <- 0.50
@@ -490,7 +493,7 @@ get.est <- function(data, aux.info) {
 # aux.zero uses the fixed tstar and tpro = 0. For any external KM vector p,
 # phi(p) is recovered exactly as phi(0) - diag(replicated pai) p. Therefore the
 # expensive WEE/bootstrap calculation is performed once per internal sample,
-# not five times.
+# not three times.
 boot.cov <- function(data, aux.zero, B) {
   nn <- nrow(data)
   p <- length(beta.true)
@@ -618,6 +621,7 @@ method.rows <- function(
   data.frame(
     Rep = rep.id,
     Setting = SETTING_ID,
+    Incidence = "pai1",
     InternalN = n,
     ExternalN = N.external,
     N_over_n = N.external / n,
@@ -693,7 +697,7 @@ Repeat <- function(r, rep.id, aux.zero) {
   }
 
   # One new external sample per MC replication; nested random subsets give the
-  # five marginally correct external samples while pairing the N comparisons.
+  # three marginally correct external samples while pairing the N comparisons.
   set.seed(SEED_EXTERNAL_DATA + rep.id)
   external.full <- Get.random(N.max)
   random.order <- sample.int(N.max, N.max, replace = FALSE)
@@ -712,23 +716,6 @@ Repeat <- function(r, rep.id, aux.zero) {
     ext.censor <- mean(ext.data$delta == 0)
     ext.cure <- mean(ext.eta == 0)
     ext.min.group <- min(rowSums(ext.group))
-
-    output.index <- output.index + 1L
-    output[[output.index]] <- method.rows(
-      rep.id = rep.id,
-      N.external = current.N,
-      method = "WEE",
-      estimate = beta.WEE,
-      se = se.WEE,
-      valid = TRUE,
-      cens.rate = cens.rate,
-      cure.rate = cure.rate,
-      external.cens.rate = ext.censor,
-      external.cure.rate = ext.cure,
-      external.min.group.size = ext.min.group,
-      nvalid.beta = bc$nvalid.beta,
-      nvalid.joint = bc$nvalid.joint
-    )
 
     fit.adjusted <- fit.naive <- list(
       beta = rep(NA_real_, length(beta.true)),
@@ -763,7 +750,7 @@ Repeat <- function(r, rep.id, aux.zero) {
         V22 + (nn / current.N) * D.pi %*% Sigma.phi %*% D.pi
       )
 
-      # Adjusted ICV is the primary method and therefore receives the name ICV.
+      # UICV incorporates uncertainty in the external subgroup KM estimates.
       fit.adjusted <- cv.result(
         beta.WEE, psi.est, V11, V12, V22.U, nn
       )
@@ -776,7 +763,7 @@ Repeat <- function(r, rep.id, aux.zero) {
     output[[output.index]] <- method.rows(
       rep.id = rep.id,
       N.external = current.N,
-      method = "ICV",
+      method = "UICV",
       estimate = fit.adjusted$beta,
       se = fit.adjusted$se,
       valid = fit.adjusted$valid,
@@ -796,7 +783,7 @@ Repeat <- function(r, rep.id, aux.zero) {
     output[[output.index]] <- method.rows(
       rep.id = rep.id,
       N.external = current.N,
-      method = "ICV_naive",
+      method = "WEEICV",
       estimate = fit.naive$beta,
       se = fit.naive$se,
       valid = fit.naive$valid,
@@ -850,7 +837,7 @@ GetSummary <- function(raw.result, beta.true) {
     }
 
     reg <- d$Regularized[ok]
-    reg.rate <- if (method == "WEE" || length(reg) == 0L || all(is.na(reg))) {
+    reg.rate <- if (length(reg) == 0L || all(is.na(reg))) {
       NA_real_
     } else {
       mean(reg, na.rm = TRUE)
@@ -920,24 +907,20 @@ plot.calibration <- function(summary.result, file.base) {
 
   x.breaks <- sort(unique(dat$N_over_n))
   method.labels <- c(
-    WEE = "WEE",
-    ICV = "UICV",
-    ICV_naive = "Naive ICV"
+    WEEICV = "WEEICV",
+    UICV = "UICV"
   )
   method.colors <- c(
-    WEE = "#000000",
-    ICV = "#0072B2",
-    ICV_naive = "#D55E00"
+    WEEICV = "#D55E00",
+    UICV = "#0072B2"
   )
   method.linetypes <- c(
-    WEE = "dashed",
-    ICV = "solid",
-    ICV_naive = "dotted"
+    WEEICV = "dotted",
+    UICV = "solid"
   )
   method.shapes <- c(
-    WEE = 15,
-    ICV = 16,
-    ICV_naive = 17
+    WEEICV = 17,
+    UICV = 16
   )
 
   p <- ggplot(
@@ -1185,7 +1168,7 @@ tryCatch({
   cat("Mean cure rate:",
       round(mean(raw.result$CureRate, na.rm = TRUE), 3), "\n")
   cat("Raw results:", raw.file, "\n")
-  cat("Five-point summary:", summary.file, "\n")
+  cat("Three-point summary:", summary.file, "\n")
   cat("Calibration plots:", paste0(plot.base, c(".pdf", ".png")), "\n")
 
   print.copy <- summary.result[

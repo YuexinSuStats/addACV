@@ -10,18 +10,18 @@ library(MASS)
 timestart <- Sys.time()
 
 # =============================================================================
-# Uncertainty-adjusted ICV simulation based on addICV011.R
+# ICV simulation without external-information uncertainty adjustment
 #
 # The external sample is generated once and then held fixed across all Monte
-# Carlo replications.  The reported ICV1/ICV2/ICV4 estimators use the
-# uncertainty-adjusted control-variate covariance
+# Carlo replications.  The reported ICV1/ICV2/ICV4 estimators use the original
+# internal control-variate covariance V22 and treat the external auxiliary
+# estimates as fixed.  In particular, the adjustment
 #
-#   V22.U = V22 + (n / N_ex) * D.pi %*% Sigma.phi %*% D.pi,
+#   (n / N_ex) * D.pi %*% Sigma.phi %*% D.pi
 #
-# where Sigma.phi is estimated by applying the same subgroup KM procedure to
-# the internal bootstrap samples, as in addICV_U01.R.  Both the ICV point
-# estimator and its variance use V22.U.  Only WEE and these adjusted ICV
-# estimators are reported.
+# is not added.  The simulation settings, external sample, bootstrap,
+# estimators, summaries, and output structure are otherwise unchanged from
+# addICV.R.
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -590,11 +590,10 @@ Repeat <- function(r, rep.id, aux.info){
       }
       D.pi <- diag(pai.vector, nrow = q)
 
-      # Uncertainty-adjusted covariance used in both the ICV coefficient and
-      # its estimated asymptotic variance.
-      V22.U <- symmetrize(
-        V22 + (nn / N_ex) * D.pi %*% Sigma.phi %*% D.pi
-      )
+      # No external-information uncertainty adjustment: use V22 directly.
+      # The V22.U name is retained so that the remaining code and output
+      # structure stay identical to addICV.R.
+      V22.U <- V22
 
       finite.matrices <-
         all(is.finite(V11)) &&
